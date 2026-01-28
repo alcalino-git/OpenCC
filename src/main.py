@@ -21,18 +21,23 @@ def main():
 
     print(state.loopback)
     with state.loopback, state.speaker:
-        t1 = threading.Thread(target=lambda: state.get_audio_data())
-        t2 = threading.Thread(target=lambda: state.transcribe())
+        t1 = threading.Thread(target=lambda: state.start_audio_data_stream())
+        t2 = threading.Thread(target=lambda: state.start_transcription_routine())
+        t3 = threading.Thread(target=lambda: state.display_text())
 
         t1.start()
         t2.start()
+        t3.start()
 
         t1.join()
         t2.join()
+        t3.join()
+    
 
-#TODO: GET `get_audio_data()` and `transcribe` to execute in parallel
+    
 
-
+#TODO: FIND A WAY TO NOT MAKE OLD TRANSCRIPTIONS OVERRIDE NEW ONES
+#MAYBE USE TIME STAMPS????
 
 
 main()
