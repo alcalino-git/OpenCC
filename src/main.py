@@ -8,6 +8,7 @@ import librosa
 import asyncio
 import threading
 import global_state
+import argparse
 SAMPLERATE=16000
 SECONDS=10
 
@@ -17,7 +18,30 @@ SECONDS=10
 
 
 def main():
-    state = global_state.GlobalState()
+    parser = argparse.ArgumentParser(description="Simple, universal subtitiles, anywhere")
+    parser.add_argument(
+        "--model", 
+        type=str, 
+        choices=["tiny", "base", "small", "medium", "large", "turbo"],
+        default="base",
+        required=False,
+        help="Choose OpenAI Whisper model to use"
+    )
+    parser.add_argument(
+        "--translate",
+        type=str,
+        default=None,
+        required=False,
+        help="Choose language to translate subtitules into"
+    )
+
+    args = parser.parse_args()
+    model_name: str = args.model
+    translate: str = args.translate
+
+
+
+    state = global_state.SubtitleGenerator(model_name, translate_lang=translate)
 
     print(state.loopback)
     with state.loopback, state.speaker:

@@ -16,17 +16,19 @@ import shutil
 SAMPLERATE=16000
 SECONDS=30
 
-class GlobalState:
+class SubtitleGenerator:
     data: np.ndarray
     text: str
-    model: whisper.Whisper = whisper.load_model("base")
+    model: whisper.Whisper
     speaker = sc.default_speaker().player(samplerate=SAMPLERATE)
 
 
-    def __init__(self) -> None:
+    def __init__(self, model_name: str, translate_lang: str | None) -> None:
         self.data = np.array([],  dtype=np.float32)
         self.text = ""
-        self.loopback = GlobalState.get_loopback_device()
+        self.loopback = SubtitleGenerator.get_loopback_device()
+        self.model = whisper.load_model(model_name)
+        self.translate_lang = translate_lang
 
     def display_text(self):
         last_len = 0
@@ -43,7 +45,7 @@ class GlobalState:
             text = f"\33[2K\rTranscription: {text}"
             print(text, end="", flush=True)
             last_len = len(text)
-            time.sleep(0.1)
+            time.sleep(0.01)
             
         
 
