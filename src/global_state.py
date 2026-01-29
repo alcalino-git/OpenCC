@@ -12,6 +12,7 @@ import asyncio
 import threading
 import time
 import shutil
+import os
 
 SAMPLERATE=16000
 SECONDS=30
@@ -34,18 +35,21 @@ class SubtitleGenerator:
         last_len = 0
         
         while True:
-            cols = shutil.get_terminal_size().columns
-            rows_used = math.ceil(last_len / cols)
+            os.system('cls' if os.name == 'nt' else 'clear')
+            print(self.text)
+            time.sleep(0.1)
+            # cols = shutil.get_terminal_size().columns
+            # rows_used = math.ceil(last_len / cols)
 
-            for i in range(rows_used):
-                print("\033[F", end="")
-                print("\033[2K", end="")
+            # for i in range(rows_used):
+            #     print("\033[F", end="")
+            #     print("\033[2K", end="")
 
-            text = self.text.replace("\n", " ")
-            text = f"\33[2K\rTranscription: {text}"
-            print(text, end="", flush=True)
-            last_len = len(text)
-            time.sleep(0.01)
+            # text = self.text.replace("\n", " ")
+            # text = f"\33[2K\rTranscription: {text}"
+            # print(text, end="", flush=True)
+            # last_len = len(text)
+            # time.sleep(0.01)
             
         
 
@@ -70,8 +74,9 @@ class SubtitleGenerator:
             
             self.data = np.concatenate((self.data, data_next), casting="unsafe")
             if (len(self.data) > SAMPLERATE*SECONDS):
-                #print(f"RESETTING DATA BUFFER AFTER {SECONDS}s")
-                self.data = data_next #No need to endlessly accumulate data
+                self.data = self.data[ len(self.data)-(SAMPLERATE*SECONDS)  :]
+                #self.data = data_next #No need to endlessly accumulate data
+            #TODO: FIND A WAY TO KEEP "THE LAST 30 SECONDS" RATHER THAN JUST DELETING THE DATA
 
     #Runs in a cycle and transcribes text from `self.data` buffer
     def start_transcription_routine(self):
@@ -79,7 +84,8 @@ class SubtitleGenerator:
 
         while True:
             if (last_length == len(self.data)):
-                continue #Skip if no data has been added to toe buffer
+                #continue #Skip if no data has been added to toe buffer
+                pass
             else:
                 last_length = len(self.data)
             #print("Beginning transcription")
